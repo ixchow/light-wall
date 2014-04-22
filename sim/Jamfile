@@ -14,7 +14,7 @@ EXECNAME = wall ;
 
 UtilFlags $(NAMES) ;
 Objects $(NAMES:S=.cpp) ;
-ObjectC++Flags $(NAMES) : -Wno-deprecated-register -Wno-unused-function ;
+ObjectC++Flags $(NAMES) : -Wno-deprecated-register -Wno-unused-function -I.. ;
 
 UtilLibs $(EXECNAME) ;
 Executable $(EXECNAME) : $(NAMES:S=$(SUFOBJ)) $(UTIL_OBJECTS) ;

@@ -1,0 +1,20 @@
+SubDir TOP ;
+
+SubInclude TOP util ;
+
+MySubDir TOP ;
+
+NAMES =
+	wall
+	GLProgram
+;
+
+
+EXECNAME = wall ;
+
+UtilFlags $(NAMES) ;
+Objects $(NAMES:S=.cpp) ;
+ObjectC++Flags $(NAMES) : -Wno-deprecated-register -Wno-unused-function ;
+
+UtilLibs $(EXECNAME) ;
+Executable $(EXECNAME) : $(NAMES:S=$(SUFOBJ)) $(UTIL_OBJECTS) ;

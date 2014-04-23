@@ -124,14 +124,17 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	PatternInfo *pattern[2] = {NULL, NULL};
+	PatternInfo *pattern[2] = {&all_patterns[0], &all_patterns[0]};
 	PatternState pattern_state[2];
+
+	init_state(pattern[0], &pattern_state[0]);
+	init_state(pattern[1], &pattern_state[1]);
 
 	int16_t mix = 0; //mix between the two patterns
 	int16_t mix_target = 0;
 	int16_t mix_step = 0;
 
-	uint32_t ticks_to_remix = 0;
+	uint32_t ticks_to_remix = -1U; //just run pattern[0] "forever"
 
 	bool quit_flag = false;
 	while (!quit_flag) {
@@ -168,15 +171,11 @@ int main(int argc, char **argv) {
 			// to swap out the other one:
 			if (mix == 0 || pattern[1] == NULL) {
 				pattern[1] = all_patterns + (rand() % PatternCount);
-				pattern_state[1].ramp1 = all_ramps[rand() % RampCount];
-				pattern_state[1].p1 = rand();
-				pattern[1]->init(&pattern_state[1]);
+				init_state(pattern[1], &pattern_state[1]);
 			}
 			if (mix == 0x100 || pattern[0] == NULL) {
 				pattern[0] = all_patterns + (rand() % PatternCount);
-				pattern_state[0].ramp1 = all_ramps[rand() % RampCount];
-				pattern_state[0].p1 = rand();
-				pattern[0]->init(&pattern_state[0]);
+				init_state(pattern[0], &pattern_state[0]);
 			}
 			if (pick < 40) {
 				//mix to just first pattern

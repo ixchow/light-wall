@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <cstdlib>
 
 #include "Ramps.h"
 
@@ -27,11 +28,20 @@ struct PatternState {
 	uint8_t grid[LedsX * LedsY * 3];
 };
 
+
 struct PatternInfo {
 	void (*init)(PatternState *);
 	void (*update)(PatternState *);
 	void (*read)(PatternState *, uint16_t x, uint16_t y, Px *px);
 };
 
-const uint32_t PatternCount = 2;
+const uint32_t PatternCount = 3;
 extern PatternInfo all_patterns[PatternCount];
+
+//helper for driver:
+inline void init_state(PatternInfo *pattern, PatternState *state) {
+	state->t = rand() & 0xffff;
+	state->ramp1 = all_ramps[rand() % RampCount];
+	state->p1 = rand();
+	pattern->init(state);
+}

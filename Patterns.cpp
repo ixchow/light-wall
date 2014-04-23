@@ -24,8 +24,8 @@ void P_Zags_Read(PatternState *s, uint16_t x, uint16_t y, Px *px) {
 //----------------------------------------------------
 
 void Grid_Circle_Init(PatternState *s) {
-	for (int16_t y = 0; y < LedsY; ++y) {
-		for (int16_t x = 0; x < LedsX; ++x) {
+	for (int16_t y = 0; y < (int16_t)LedsY; ++y) {
+		for (int16_t x = 0; x < (int16_t)LedsX; ++x) {
 			int16_t dis = (2 * x + 1 - LedsX) * (2 * x + 1 - LedsX) * PerJugY * PerJugY
 			            + (2 * y + 1 - LedsY) * (2 * y + 1 - LedsY) * PerJugX * PerJugX;
 			s->grid[y * LedsX + x] = dis / 8;

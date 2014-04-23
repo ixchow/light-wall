@@ -1,6 +1,6 @@
-#include "Pattern.h"
+#include "Patterns.h"
 
-static void checkerFn(PatternState *, uint16_t x, uint16_t y, Px *px) {
+void P_Checker_Read(PatternState *, uint16_t x, uint16_t y, Px *px) {
 	if (((x / PerJugX) ^ (y / PerJugY)) & 0x1) {
 		px->r = 0xff;
 		px->g = 0xff;

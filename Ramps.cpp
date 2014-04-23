@@ -1,12 +1,18 @@
-#include "Pattern.h"
+#include "Patterns.h"
+#include "Ramps.h"
 
-static void R_Grey(void *, uint8_t v, Px *px) {
+
+//-----------------------------------------------
+
+void R_Grey(uint8_t v, Px *px) {
 	px->r = v;
 	px->g = v;
 	px->b = v;
 }
 
-static void R_Rainbow(void *, uint8_t v, Px *px) {
+//-----------------------------------------------
+
+void R_Rainbow(uint8_t v, Px *px) {
 	if (v < 256 / 6) {
 		v -= 256 * 0 / 6;
 		v = v * 6;
@@ -46,11 +52,20 @@ static void R_Rainbow(void *, uint8_t v, Px *px) {
 	}
 }
 
-static void R_T_Peak(void *param, uint8_t v, Px *px) {
-	if (v >= 128) {
-		v = (255 - v) * 2 + 1;
-	} else {
-		v *= 2;
-	}
-	((RampFn)param)(NULL, v, px);
+//-----------------------------------------------
+
+struct RampData {
+	void (*func)(uint8_t v, Px *px);
+};
+
+void read_ramp(RampData const *data, uint8_t v, Px *px) {
+	data->func(v, px);
 }
+
+RampData GreyData = {&R_Grey};
+RampData RainbowData = {&R_Rainbow};
+
+RampData *all_ramps[RampCount] = {
+	&GreyData,
+	&RainbowData,
+};

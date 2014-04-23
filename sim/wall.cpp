@@ -3,10 +3,7 @@
 #include <gl.hpp>
 #include "GLProgram.hpp"
 #include "GLAttribStore.hpp"
-#include "Pattern.h"
-//#include "P_Checker.h"
-#include "P_Zags.h"
-#include "R_Basic.h"
+#include "Patterns.h"
 
 #include <SDL.h>
 #include <glm/glm.hpp>
@@ -127,11 +124,14 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	PatternFn pattern_fn = &ZagsFn;
-	PatternState pattern_state;
-	pattern_state.t = 0;
-	pattern_state.ramp1 = &R_Rainbow;
-	pattern_state.ramp_param_1 = NULL; //(void *)&R_Rainbow;
+	PatternInfo *pattern[2] = {NULL, NULL};
+	PatternState pattern_state[2];
+
+	int16_t mix = 0; //mix between the two patterns
+	int16_t mix_target = 0;
+	int16_t mix_step = 0;
+
+	uint32_t ticks_to_remix = 0;
 
 	bool quit_flag = false;
 	while (!quit_flag) {
@@ -141,6 +141,9 @@ int main(int argc, char **argv) {
 				if (event.type == SDL_QUIT) {
 					quit_flag = true;
 					continue;
+				}
+				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+					ticks_to_remix = 0;
 				}
 				if (event.type == SDL_WINDOWEVENT) {
 					if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -156,8 +159,54 @@ int main(int argc, char **argv) {
 				}
 			}
 		}
+		if (ticks_to_remix > 0) {
+			--ticks_to_remix;
+		} else {
+			ticks_to_remix = 60 * 5; //5 + 10 % rand());
+			uint32_t pick = rand() % 100;
+			//if we happen to be mixed to just one pattern, take the opportunity
+			// to swap out the other one:
+			if (mix == 0 || pattern[1] == NULL) {
+				pattern[1] = all_patterns + (rand() % PatternCount);
+				pattern_state[1].ramp1 = all_ramps[rand() % RampCount];
+				pattern_state[1].p1 = rand();
+				pattern[1]->init(&pattern_state[1]);
+			}
+			if (mix == 0x100 || pattern[0] == NULL) {
+				pattern[0] = all_patterns + (rand() % PatternCount);
+				pattern_state[0].ramp1 = all_ramps[rand() % RampCount];
+				pattern_state[0].p1 = rand();
+				pattern[0]->init(&pattern_state[0]);
+			}
+			if (pick < 40) {
+				//mix to just first pattern
+				mix_target = 0;
+				mix_step = 1 + (rand() % 5);
+			} else if (pick < 80) {
+				//mix to just second pattern
+				mix_target = 0x100;
+				mix_step = 1 + (rand() % 5);
+			} else {
+				//mix to random fade between patterns.
+				mix_target = (rand() % 254) + 1;
+				mix_step = 1 + (rand() % 5);
+			}
+		}
 
-		++pattern_state.t;
+		if (mix > mix_target) {
+			mix -= mix_step;
+			if (mix < mix_target) mix = mix_target;
+		}
+		if (mix < mix_target) {
+			mix += mix_step;
+			if (mix > mix_target) mix = mix_target;
+		}
+
+		++pattern_state[0].t;
+		pattern[0]->update(&pattern_state[0]);
+
+		++pattern_state[1].t;
+		pattern[1]->update(&pattern_state[1]);
 
 		glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -166,11 +215,15 @@ int main(int argc, char **argv) {
 			{
 				typedef Attrib2< glm::vec2, glm::u8vec4 > Attrib;
 				std::vector< Attrib > attribs;
-				static struct Px px;
+				static struct Px px[1];
 				for (uint16_t y = 0; y < LedsY; ++y) {
 					for (uint16_t x = 0; x < LedsX; ++x) {
-						pattern_fn(&pattern_state, x, y, &px);
-						glm::u8vec4 col(px.r, px.g, px.b, 0xff);
+						pattern[0]->read(&pattern_state[0], x, y, &px[0]);
+						pattern[1]->read(&pattern_state[1], x, y, &px[1]);
+						px[0].r = (px[1].r * mix + px[0].r * (256 - mix)) >> 8;
+						px[0].g = (px[1].g * mix + px[0].g * (256 - mix)) >> 8;
+						px[0].b = (px[1].b * mix + px[0].b * (256 - mix)) >> 8;
+						glm::u8vec4 col(px[0].r, px[0].g, px[0].b, 0xff);
 						attribs.emplace_back(glm::vec2(x,y), col);
 						attribs.emplace_back(glm::vec2(x,y), col);
 						attribs.emplace_back(glm::vec2(x,y+1), col);

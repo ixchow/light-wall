@@ -7,14 +7,19 @@ MySubDir TOP ;
 NAMES =
 	wall
 	GLProgram
+	Patterns/Patterns
+	Patterns/Ramps
+	Patterns/P_Checker
 ;
 
 
 EXECNAME = wall ;
 
+HDRS += Patterns ;
+
 UtilFlags $(NAMES) ;
 Objects $(NAMES:S=.cpp) ;
-ObjectC++Flags $(NAMES) : -Wno-deprecated-register -Wno-unused-function -I.. ;
+ObjectC++Flags $(NAMES) : -Wno-deprecated-register -Wno-unused-function ;
 
 UtilLibs $(EXECNAME) ;
 Executable $(EXECNAME) : $(NAMES:S=$(SUFOBJ)) $(UTIL_OBJECTS) ;

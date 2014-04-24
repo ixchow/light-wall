@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDL_Window *window = SDL_CreateWindow("wall", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, LedsX * 16, LedsY * 16, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_Window *window = SDL_CreateWindow("wall", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, JugsX * 16, JugsY * 16, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	
 	if (!window) {
 		std::cerr << "Could not create window: " << SDL_GetError() << std::endl;
@@ -112,6 +112,7 @@ int main(int argc, char **argv) {
 
 	gl_errors("init");
 
+	Pattern *pattern = NULL;
 
 	bool quit_flag = false;
 	while (!quit_flag) {
@@ -123,7 +124,8 @@ int main(int argc, char **argv) {
 					continue;
 				}
 				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-					//ticks_to_remix = 0;
+					delete pattern;
+					pattern = NULL;
 				}
 				if (event.type == SDL_WINDOWEVENT) {
 					if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -139,19 +141,38 @@ int main(int argc, char **argv) {
 
 		//TODO: pattern update
 		//TODO: pattern draw(led_buffer)
+		for (auto c = led_buffer.begin(); c != led_buffer.end(); ++c) {
+			*c = rand();
+		}
+
+		if (pattern == NULL) {
+			pattern = all_patterns[rand() % PatternCount]();
+		}
+		pattern->tick(&led_buffer[0]);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LedsX, LedsY, 0, GL_RGB, GL_UNSIGNED_BYTE, &led_buffer[0]);
 
 		glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		aspect *= aspect; //to make it seem used
+		float h = JugsY + 1;
+		float w = JugsX + 2;
+		float s = 1.0f;
+		if (s * h > 1.0f) {
+			s = 1.0f / h;
+		}
+		if (s * w > aspect) {
+			s = aspect / w;
+		}
+
+		glLoadIdentity();
+		glScalef(s / aspect, s, 1.0f);
 
 		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f,-1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, 1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.0f,-1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.0f, 1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex2f(-float(JugsX),-float(JugsY));
+		glTexCoord2f(0.0f, 1.0f); glVertex2f(-float(JugsX), float(JugsY));
+		glTexCoord2f(1.0f, 0.0f); glVertex2f( float(JugsX),-float(JugsY));
+		glTexCoord2f(1.0f, 1.0f); glVertex2f( float(JugsX), float(JugsY));
 		glEnd();
 
 

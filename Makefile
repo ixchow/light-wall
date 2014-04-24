@@ -22,7 +22,7 @@ endif
 all : sim
 
 %.o : %.cpp Patterns.h Ramps.h
-	g++ -c -Wall -Werror -o $@ $< $(CPPFLAGS)
+	g++ -c -Wall -Werror -std=c++11 -o $@ $< $(CPPFLAGS)
 
-sim : sim-main.o
-	g++ -Wall -Werror -o $@ $< $(LDFLAGS)
+sim : sim-main.o Patterns.o
+	g++ -Wall -Werror -o $@ $^ $(LDFLAGS)

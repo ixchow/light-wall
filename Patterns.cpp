@@ -1,28 +1,39 @@
 #include "Patterns.h"
 
-//----------------------------------------------------
+Pattern::~Pattern() { }
 
-extern void P_Checker_Read(PatternState *, uint16_t x, uint16_t y, Px *);
-
-//----------------------------------------------------
-
-void P_Zags_Read(PatternState *s, uint16_t x, uint16_t y, Px *px) {
-	if (y > LedsY / 2) {
-		x += (LedsY - y) * (PerJugX / PerJugY);
-	} else {
-		x += y * (PerJugX / PerJugY);
+class P_Xor : public Pattern {
+public:
+	P_Xor() : t(0) { }
+	uint32_t t;
+	virtual void tick(uint8_t *buffer) {
+		++t;
+		for (uint32_t y = 0; y < LedsY; ++y) {
+			for (uint32_t x = 0; x < LedsX; ++x) {
+				uint8_t v = ((x >> 1) * 16) ^ (y * 16 + t);
+				v += t >> 1;
+				buffer[(y * LedsX + x) * 3 + 0] = v;
+				buffer[(y * LedsX + x) * 3 + 1] = v;
+				buffer[(y * LedsX + x) * 3 + 2] = v;
+			}
+		}
 	}
-	x *= (s->p1 & 0xf) + 12;
-	if (s->p1 & 0x10) {
-		x += ((s->t * 2) % 256);
-	} else {
-		x += 255 - ((s->t * 2) % 256);
+};
+
+class P_Rand : public Pattern {
+public:
+	virtual void tick(uint8_t *buffer) {
+		for (uint32_t i = 0; i < LedsX * LedsY; ++i) {
+			uint8_t val = rand();
+			*(buffer++) = val;
+			*(buffer++) = val;
+			*(buffer++) = val;
+		}
 	}
-	read_ramp(s->ramp1, x, px);
-}
+};
 
-//----------------------------------------------------
-
+/*
+//TODO: port to new class-based patterns:
 void Grid_Circle_Init(PatternState *s) {
 	for (int16_t y = 0; y < (int16_t)LedsY; ++y) {
 		for (int16_t x = 0; x < (int16_t)LedsX; ++x) {
@@ -43,15 +54,13 @@ void Grid_Read(PatternState *s, uint16_t x, uint16_t y, Px *px) {
 }
 
 //----------------------------------------------------
+*/
 
-void No_Init(PatternState *) {
-}
+template< typename P >
+Pattern *create() { return new P(); }
 
-void No_Update(PatternState *) {
-}
-
-PatternInfo all_patterns[PatternCount] = {
-	{ &Grid_Circle_Init, &No_Update, &Grid_Read },
-	{ &No_Init, &No_Update, &P_Checker_Read },
-	{ &No_Init, &No_Update, &P_Zags_Read },
+CreatePattern all_patterns[PatternCount] = {
+	&create< P_Xor >,
+	&create< P_Rand >,
+	&create< P_Rand >,
 };

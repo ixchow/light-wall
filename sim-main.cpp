@@ -83,12 +83,6 @@ int main(int argc, char **argv) {
 
 		std::cout << "  SDL says context is version " << major_version << "." << minor_version << std::endl;
 	}
-	{ //another way...
-		GLint major_version = 0, minor_version = 0;
-		glGetIntegerv(GL_MAJOR_VERSION, &major_version);
-		glGetIntegerv(GL_MINOR_VERSION, &minor_version);
-		std::cout << "  glGet says version " << major_version << "." << minor_version << std::endl;
-	}
 
 	glViewport(0,0,window_width, window_height);
 	

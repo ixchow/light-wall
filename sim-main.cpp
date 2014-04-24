@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LedsX, LedsY, 0, GL_RGB, GL_UNSIGNED_BYTE, &led_buffer[0]);
 
-		glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		float h = JugsY + 1;
@@ -160,13 +160,20 @@ int main(int argc, char **argv) {
 		}
 
 		glLoadIdentity();
-		glScalef(s / aspect, s, 1.0f);
+		glScalef(2.0f * s / aspect, 2.0f * s, 1.0f);
 
 		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0.0f, 0.0f); glVertex2f(-float(JugsX),-float(JugsY));
-		glTexCoord2f(0.0f, 1.0f); glVertex2f(-float(JugsX), float(JugsY));
-		glTexCoord2f(1.0f, 0.0f); glVertex2f( float(JugsX),-float(JugsY));
-		glTexCoord2f(1.0f, 1.0f); glVertex2f( float(JugsX), float(JugsY));
+		glTexCoord2f(0.0f, 0.0f); glVertex2f(-(JugsX/2 + 0.5f), -0.5f * JugsY);
+		glTexCoord2f(0.0f, 1.0f); glVertex2f(-(JugsX/2 + 0.5f),  0.5f * JugsY);
+		glTexCoord2f(0.5f, 0.0f); glVertex2f(-0.5f,-0.5f * JugsY);
+		glTexCoord2f(0.5f, 1.0f); glVertex2f(-0.5f, 0.5f * JugsY);
+		glEnd();
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.5f, 0.0f); glVertex2f( 0.5f, -0.5f * JugsY);
+		glTexCoord2f(0.5f, 1.0f); glVertex2f( 0.5f,  0.5f * JugsY);
+		glTexCoord2f(1.0f, 0.0f); glVertex2f( JugsX/2 + 0.5f,-0.5f * JugsY);
+		glTexCoord2f(1.0f, 1.0f); glVertex2f( JugsX/2 + 0.5f, 0.5f * JugsY);
 		glEnd();
 
 

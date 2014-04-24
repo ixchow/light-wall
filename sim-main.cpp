@@ -169,7 +169,16 @@ int main(int argc, char **argv) {
 		glTexCoord2f(1.0f, 1.0f); glVertex2f( JugsX/2 + 0.5f, 0.5f * JugsY);
 		glEnd();
 
-
+		{
+			static Uint32 then = SDL_GetTicks();
+			Uint32 now = SDL_GetTicks();
+			const uint32_t MSPerTick = 1000 / TicksPerSecond;
+			Uint32 elapsed = now - then;
+			then = now;
+			if (elapsed < MSPerTick) {
+				SDL_Delay(MSPerTick - elapsed);
+			}
+		}
 		SDL_GL_SwapWindow(window);
 		
 		gl_errors("main loop");

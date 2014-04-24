@@ -7,7 +7,7 @@
 
 const uint32_t PerJugX = 2;
 const uint32_t PerJugY = 1;
-const uint32_t JugsX = 12;
+const uint32_t JugsX = 24;
 const uint32_t JugsY = 12;
 const uint32_t LedsX = PerJugX * JugsX;
 const uint32_t LedsY = PerJugY * JugsY;

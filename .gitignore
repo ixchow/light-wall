@@ -2,3 +2,5 @@ sim/dist
 sim/objs
 sim/util
 .*.swp
+*.o
+sim

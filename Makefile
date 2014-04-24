@@ -1,4 +1,4 @@
-.PHONY : all
+.PHONY : all clean
 
 UNAME := $(shell uname -s)
 
@@ -26,3 +26,7 @@ all : sim
 
 sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
 	g++ -Wall -Werror -o $@ $^ $(LDFLAGS)
+
+
+clean :
+	rm *.o sim

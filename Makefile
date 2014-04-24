@@ -24,5 +24,5 @@ all : sim
 %.o : %.cpp Patterns.h Ramps.h
 	g++ -c -Wall -Werror -o $@ $< $(CPPFLAGS)
 
-sim : sim-main.o Patterns.o
+sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
 	g++ -Wall -Werror -o $@ $^ $(LDFLAGS)

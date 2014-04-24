@@ -1,4 +1,4 @@
-#include "Patterns.h"
+#include "PatternMixer.h"
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -83,12 +83,6 @@ int main(int argc, char **argv) {
 
 		std::cout << "  SDL says context is version " << major_version << "." << minor_version << std::endl;
 	}
-	{ //another way...
-		GLint major_version = 0, minor_version = 0;
-		glGetIntegerv(GL_MAJOR_VERSION, &major_version);
-		glGetIntegerv(GL_MINOR_VERSION, &minor_version);
-		std::cout << "  glGet says version " << major_version << "." << minor_version << std::endl;
-	}
 
 	glViewport(0,0,window_width, window_height);
 	
@@ -112,7 +106,8 @@ int main(int argc, char **argv) {
 
 	gl_errors("init");
 
-	Pattern *pattern = NULL;
+
+	PatternMixer pattern_mixer;
 
 	bool quit_flag = false;
 	while (!quit_flag) {
@@ -124,8 +119,7 @@ int main(int argc, char **argv) {
 					continue;
 				}
 				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-					delete pattern;
-					pattern = NULL;
+					pattern_mixer.next();
 				}
 				if (event.type == SDL_WINDOWEVENT) {
 					if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -141,18 +135,11 @@ int main(int argc, char **argv) {
 
 		//TODO: pattern update
 		//TODO: pattern draw(led_buffer)
-		for (auto c = led_buffer.begin(); c != led_buffer.end(); ++c) {
-			*c = rand();
-		}
-
-		if (pattern == NULL) {
-			pattern = all_patterns[rand() % PatternCount]();
-		}
-		pattern->tick(&led_buffer[0]);
+		pattern_mixer.draw(&led_buffer[0]);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LedsX, LedsY, 0, GL_RGB, GL_UNSIGNED_BYTE, &led_buffer[0]);
 
-		glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		float h = JugsY + 1;
@@ -166,13 +153,20 @@ int main(int argc, char **argv) {
 		}
 
 		glLoadIdentity();
-		glScalef(s / aspect, s, 1.0f);
+		glScalef(2.0f * s / aspect, 2.0f * s, 1.0f);
 
 		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0.0f, 0.0f); glVertex2f(-float(JugsX),-float(JugsY));
-		glTexCoord2f(0.0f, 1.0f); glVertex2f(-float(JugsX), float(JugsY));
-		glTexCoord2f(1.0f, 0.0f); glVertex2f( float(JugsX),-float(JugsY));
-		glTexCoord2f(1.0f, 1.0f); glVertex2f( float(JugsX), float(JugsY));
+		glTexCoord2f(0.0f, 0.0f); glVertex2f(-(JugsX/2 + 0.5f), -0.5f * JugsY);
+		glTexCoord2f(0.0f, 1.0f); glVertex2f(-(JugsX/2 + 0.5f),  0.5f * JugsY);
+		glTexCoord2f(0.5f, 0.0f); glVertex2f(-0.5f,-0.5f * JugsY);
+		glTexCoord2f(0.5f, 1.0f); glVertex2f(-0.5f, 0.5f * JugsY);
+		glEnd();
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0.5f, 0.0f); glVertex2f( 0.5f, -0.5f * JugsY);
+		glTexCoord2f(0.5f, 1.0f); glVertex2f( 0.5f,  0.5f * JugsY);
+		glTexCoord2f(1.0f, 0.0f); glVertex2f( JugsX/2 + 0.5f,-0.5f * JugsY);
+		glTexCoord2f(1.0f, 1.0f); glVertex2f( JugsX/2 + 0.5f, 0.5f * JugsY);
 		glEnd();
 
 

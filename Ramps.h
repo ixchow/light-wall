@@ -5,6 +5,10 @@ struct Px;
 //Ramps map values [0-255] into rgb color data, and are represented
 // by an opaque data blob, at the moment:
 
+struct Px {
+	uint8_t r,g,b;
+};
+
 struct RampData;
 void read_ramp(RampData const *data, uint8_t v, Px *px);
 

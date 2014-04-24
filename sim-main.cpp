@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 		if (pattern == NULL) {
 			pattern = all_patterns[rand() % PatternCount]();
 		}
-		pattern->tick(&led_buffer[0]);
+		pattern->draw(&led_buffer[0]);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LedsX, LedsY, 0, GL_RGB, GL_UNSIGNED_BYTE, &led_buffer[0]);
 

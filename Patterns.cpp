@@ -6,7 +6,7 @@ class P_Xor : public Pattern {
 public:
 	P_Xor() : t(0) { }
 	uint32_t t;
-	virtual void tick(uint8_t *buffer) {
+	virtual void draw(uint8_t *buffer) {
 		++t;
 		for (uint32_t y = 0; y < LedsY; ++y) {
 			for (uint32_t x = 0; x < LedsX; ++x) {
@@ -22,7 +22,7 @@ public:
 
 class P_Rand : public Pattern {
 public:
-	virtual void tick(uint8_t *buffer) {
+	virtual void draw(uint8_t *buffer) {
 		for (uint32_t i = 0; i < LedsX * LedsY; ++i) {
 			uint8_t val = rand();
 			*(buffer++) = val;
@@ -41,7 +41,7 @@ public:
 		}
 		t = rand();
 	}
-	virtual void tick(uint8_t *buffer) {
+	virtual void draw(uint8_t *buffer) {
 		for (uint32_t i = 0; i < LedsX * LedsY; ++i) {
 			read_ramp(ramp, grid[i] + t, reinterpret_cast< Px * >(&(buffer[i*3])));
 		}

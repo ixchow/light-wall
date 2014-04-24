@@ -16,7 +16,7 @@ class Pattern {
 public:
 	//buffer is rgbrgbrgb...
 	virtual ~Pattern();
-	virtual void tick(uint8_t *buffer) = 0;
+	virtual void draw(uint8_t *buffer) = 0;
 };
 
 typedef Pattern *(*CreatePattern)();

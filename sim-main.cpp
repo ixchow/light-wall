@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
 	glViewport(0,0,window_width, window_height);
 	
-	if (SDL_GL_SetSwapInterval(1) != 0) {
+	if (SDL_GL_SetSwapInterval(0) != 0) {
 		std::cout << "Error setting up VSYNC " << SDL_GetError() << "; will continue, but there may be tearing (or excessive resource usage)" << std::endl;
 	}
 	

@@ -4,7 +4,7 @@ Pattern::~Pattern() { }
 
 class P_Xor : public Pattern {
 public:
-	P_Xor() : t(0) { }
+	P_Xor() : t(rand()) { }
 	uint32_t t;
 	virtual void draw(uint8_t *buffer) {
 		++t;
@@ -35,11 +35,10 @@ public:
 class RampPattern : public Pattern {
 public:
 	uint8_t t;
-	RampPattern(uint8_t *_grid, RampData *_ramp = NULL) : grid(_grid), ramp(_ramp) {
+	RampPattern(uint8_t *_grid, RampData *_ramp = NULL) : t(rand()), grid(_grid), ramp(_ramp) {
 		if (ramp == NULL) {
 			ramp = all_ramps[rand() % RampCount];
 		}
-		t = rand();
 	}
 	virtual void draw(uint8_t *buffer) {
 		for (uint32_t i = 0; i < LedsX * LedsY; ++i) {

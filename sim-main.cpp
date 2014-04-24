@@ -1,4 +1,4 @@
-#include "Patterns.h"
+#include "PatternMixer.h"
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -106,7 +106,8 @@ int main(int argc, char **argv) {
 
 	gl_errors("init");
 
-	Pattern *pattern = NULL;
+
+	PatternMixer pattern_mixer;
 
 	bool quit_flag = false;
 	while (!quit_flag) {
@@ -118,8 +119,7 @@ int main(int argc, char **argv) {
 					continue;
 				}
 				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-					delete pattern;
-					pattern = NULL;
+					pattern_mixer.next();
 				}
 				if (event.type == SDL_WINDOWEVENT) {
 					if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -135,14 +135,7 @@ int main(int argc, char **argv) {
 
 		//TODO: pattern update
 		//TODO: pattern draw(led_buffer)
-		for (auto c = led_buffer.begin(); c != led_buffer.end(); ++c) {
-			*c = rand();
-		}
-
-		if (pattern == NULL) {
-			pattern = all_patterns[rand() % PatternCount]();
-		}
-		pattern->draw(&led_buffer[0]);
+		pattern_mixer.draw(&led_buffer[0]);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LedsX, LedsY, 0, GL_RGB, GL_UNSIGNED_BYTE, &led_buffer[0]);
 

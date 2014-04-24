@@ -12,10 +12,6 @@ const uint32_t JugsY = 12;
 const uint32_t LedsX = PerJugX * JugsX;
 const uint32_t LedsY = PerJugY * JugsY;
 
-struct Px {
-	uint8_t r,g,b;
-};
-
 class Pattern {
 public:
 	//buffer is rgbrgbrgb...

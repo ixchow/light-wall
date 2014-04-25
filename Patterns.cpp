@@ -192,18 +192,24 @@ public:
 			}
 		}
 		frameCount = 0;
+		generation = 0;
 	}
 
 	virtual void draw(uint8_t *buffer) {
 		frameCount = (frameCount + 1) % 5;
 		if (frameCount != 4)
 			return;
-		for (uint32_t y = 0; y < LedsY; y++) {
-			for (uint32_t x = 0; x < LedsX; x++) {
-				uint8_t val = (cells[x][y] == true) ? 255 : 0;
-				*(buffer++) = val;
-				*(buffer++) = val;
-				*(buffer++) = val;	
+		
+		// Draw out the first generation in full
+		Px generationColor;
+		read_ramp(all_ramps[3], generation % 256, &generationColor);
+		if (generation == 0) {
+			for (uint32_t y = 0; y < LedsY; y++) {
+				for (uint32_t x = 0; x < LedsX; x++) {
+					buffer[(y * LedsX + x) * 3 + 0] = generationColor.r;
+					buffer[(y * LedsX + x) * 3 + 1] = generationColor.g;
+					buffer[(y * LedsX + x) * 3 + 2] = generationColor.b;
+				}
 			}
 		}
 
@@ -228,25 +234,34 @@ public:
 				if (x < LedsX-1 && y < LedsY-1 && cells[x+1][y+1])
 					neighbors++;
 
-				if (neighbors < 2)
+				if (neighbors < 2) {
 					next[x][y] = false;
-				else if (cells[x][y] && (neighbors == 2 || neighbors == 3))
-					next[x][y] = true;
-				else if (cells[x][y] && (neighbors > 3))
+					buffer[(y * LedsX + x) * 3 + 0] = 0;
+					buffer[(y * LedsX + x) * 3 + 1] = 0;
+					buffer[(y * LedsX + x) * 3 + 2] = 0;
+				} else if (cells[x][y] && (neighbors > 3)) {
 					next[x][y] = false;
-				else if (!cells[x][y] && (neighbors == 3))
+					buffer[(y * LedsX + x) * 3 + 0] = 0;
+					buffer[(y * LedsX + x) * 3 + 1] = 0;
+					buffer[(y * LedsX + x) * 3 + 2] = 0;
+				} else if (!cells[x][y] && (neighbors == 3)) {
 					next[x][y] = true;
-				else
+					buffer[(y * LedsX + x) * 3 + 0] = generationColor.r;
+					buffer[(y * LedsX + x) * 3 + 1] = generationColor.g;
+					buffer[(y * LedsX + x) * 3 + 2] = generationColor.b;
+				} else
 					next[x][y] = cells[x][y];
 			}
 		}
 
 		memcpy(cells, next, sizeof(bool) * LedsX * LedsY);
+		generation += 2;
 	}
 
 	uint8_t frameCount;
 	bool cells[LedsX][LedsY];
 	bool next[LedsX][LedsY];
+	uint32_t generation;
 };
 
 //----------------------------------------------------

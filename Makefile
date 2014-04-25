@@ -32,7 +32,7 @@ sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
 	g++ -g -Wall -Werror -o $@ $^ $(LDFLAGS)
 
 sim1 : sim-sdl1.o Patterns.o Ramps.o PatternMixer.o wandering_diamonds.o
-	g++ --g Wall -Werror -o $@ $^ $(SDL_LIBS)
+	g++ -g -Wall -Werror -o $@ $^ $(SDL_LIBS)
 
 clean :
 	rm *.o sim sim1

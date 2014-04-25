@@ -35,7 +35,7 @@ public:
 class RampPattern : public Pattern {
 public:
 	uint8_t t;
-	RampPattern(uint8_t *_grid, RampData *_ramp = NULL) : t(rand()), grid(_grid), ramp(_ramp) {
+	RampPattern(uint8_t *_grid, RampPtr _ramp = NULL) : t(rand()), grid(_grid), ramp(_ramp) {
 		if (ramp == NULL) {
 			ramp = all_ramps[rand() % RampCount];
 		}
@@ -47,7 +47,7 @@ public:
 		++t;
 	}
 	uint8_t *grid;
-	RampData *ramp;
+	RampPtr ramp;
 };
 
 class P_Circle : public RampPattern {

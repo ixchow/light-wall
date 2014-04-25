@@ -9,9 +9,14 @@ struct Px {
 	uint8_t r,g,b;
 };
 
-struct RampData;
-void read_ramp(RampData const *data, uint8_t v, Px *px);
+typedef void * RampPtr;
+inline void read_ramp(RampPtr _data, uint8_t v, Px *px) {
+	uint8_t *data = reinterpret_cast< uint8_t * >(_data);
+	px->r = data[3*v+0];
+	px->g = data[3*v+1];
+	px->b = data[3*v+2];
+}
 
 
 const uint32_t RampCount = 2;
-extern RampData *all_ramps[RampCount];
+extern RampPtr all_ramps[RampCount];

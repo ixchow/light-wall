@@ -73,4 +73,5 @@ CreatePattern all_patterns[PatternCount] = {
 	&create< P_Circle >,
 	&create< P_Xor >,
 	&create< P_Rand >,
+	&create< WanderingDiamonds >,
 };

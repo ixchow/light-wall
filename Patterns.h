@@ -22,5 +22,18 @@ public:
 
 typedef Pattern *(*CreatePattern)();
 
-const uint32_t PatternCount = 3;
+const uint32_t PatternCount = 4;
 extern CreatePattern all_patterns[PatternCount];
+
+
+class WanderingDiamonds : public Pattern {
+private:
+    static const int seedCount = 5;
+    int p[seedCount];
+    int c[seedCount];
+
+public:
+    WanderingDiamonds();
+    virtual void draw(uint8_t * buffer); 
+};
+		

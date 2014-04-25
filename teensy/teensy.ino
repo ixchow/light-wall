@@ -33,7 +33,7 @@ void setup() {
   frameTimer.begin(blink_led, 1000000 / TicksPerSecond);
   leds.begin();
   for (int i = 0; i < leds.numPixels(); ++i) {
-    leds.setPixel(i, 0xffffff);
+    leds.setPixel(i, 0x000000);
   }
   leds.show();
   pm = new PatternMixer();

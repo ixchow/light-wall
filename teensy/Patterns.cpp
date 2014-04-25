@@ -316,7 +316,7 @@ Pattern *create() { return new P(); }
 
 CreatePattern all_patterns[PatternCount] = {
 	&create< P_Circle >,
-	&create< P_Xor >,
+	//&create< P_Xor >,
 	&create< WanderingDiamonds >,
 	&create< P_Shimmer >,
 	&create< P_RandomWalk >,

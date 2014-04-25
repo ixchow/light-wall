@@ -234,7 +234,7 @@ void diamondRainbowWash(Plotter &b, int count, int *origins, int *originColor) {
     IntPair q[300];
     QueueArray qa(300);
     
-    for (int i; i < count; ++i)
+    for (int i = 0; i < count; ++i)
 	q[qa.push()] = IntPair(origins[i], originColor[i]);
     
     while (qa.len()) {

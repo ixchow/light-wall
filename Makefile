@@ -28,7 +28,7 @@ all : sim
 %.o : %.cpp Patterns.h Ramps.h PngRamps.h PatternMixer.h
 	g++ -g -c -Wall -Werror -o $@ $< $(CPPFLAGS)
 
-sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
+sim : sim-main.o Patterns.o Ramps.o PatternMixer.o wandering_diamonds.o
 	g++ -g -Wall -Werror -o $@ $^ $(LDFLAGS)
 
 sim1 : sim-sdl1.o Patterns.o Ramps.o PatternMixer.o wandering_diamonds.o

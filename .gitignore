@@ -4,3 +4,4 @@ sim/util
 .*.swp
 *.o
 sim
+util/pngs_to_ramps

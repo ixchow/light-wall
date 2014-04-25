@@ -12,5 +12,10 @@ public:
 	void next(); //advance to next pattern
 
 	Pattern *pattern;
-	uint8_t ticks_to_remix;
+	uint32_t ticks_to_remix;
+
+	uint8_t *pattern_order;
+	uint8_t next_in_order;
+private:
+	PatternMixer(PatternMixer const &); //do not use
 };

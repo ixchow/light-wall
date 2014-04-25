@@ -21,14 +21,20 @@ public:
 	}
 };
 
-class P_Rand : public Pattern {
+class P_Shimmer : public Pattern {
 public:
 	virtual void draw(uint8_t *buffer) {
-		for (uint32_t i = 0; i < LedsX * LedsY; ++i) {
-			uint8_t val = rand();
-			*(buffer++) = val;
-			*(buffer++) = val;
-			*(buffer++) = val;
+		for (uint32_t i = 0; i + 1 < LedsX * LedsY; i += 2) {
+			uint32_t rv = rand();
+			uint8_t r = 128 - 16 + (rv & 0x1f);
+			uint8_t g = 128 - 16 + ((rv >> 5) & 0x1f);
+			uint8_t b = 128 - 16 + ((rv >> 10) & 0x1f);
+			*(buffer++) = r;
+			*(buffer++) = g;
+			*(buffer++) = b;
+			*(buffer++) = 255 - r;
+			*(buffer++) = 255 - g;
+			*(buffer++) = 255 - b;
 		}
 	}
 };
@@ -68,7 +74,7 @@ public:
 class P_RandomWalk : public RampPattern {
 public:
 	P_RandomWalk() : RampPattern(&grid[0]) {
-		memset(grid, 0, LedsX * LedsY);
+		memset(grid, rand(), LedsX * LedsY);
 		s = 0;
 		x = rand() % JugsX;
 		y = rand() % JugsY;
@@ -85,7 +91,8 @@ public:
 			else if (dir == 5) { dx =-1; dy =-1; }
 			else if (dir == 6) { dx = 0; dy =-1; }
 			else /* dir == 7 */{ dx = 1; dy =-1; }
-			s = rand() % 2 + 1;
+			uint8_t rv = rand();
+			s = 1 + (rv & 1) + ((rv >> 1) & 1) + ((rv >> 2) & 1);
 		}
 		uint8_t px = x;
 		uint8_t py = y;
@@ -122,6 +129,6 @@ Pattern *create() { return new P(); }
 CreatePattern all_patterns[PatternCount] = {
 	&create< P_Circle >,
 	&create< P_Xor >,
-	&create< P_Rand >,
+	&create< P_Shimmer >,
 	&create< P_RandomWalk >,
 };

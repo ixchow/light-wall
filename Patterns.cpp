@@ -186,14 +186,38 @@ class P_Life : public Pattern {
 public:
 	P_Life()
 	{
-		for (uint32_t x = 0; x < LedsX; x++) {
-			for (uint32_t y = 0; y < LedsY; y++) {
-				cells[x][y] = (rand() % 2 == 0);
+		for (uint32_t x = 0; x < JugsX; x++) {
+			for (uint32_t y = 0; y < JugsY; y++) {
+				cells[x][y] = (rand() % 2 != 0);
 			}
 		}
 		frameCount = 0;
 		generation = 0;
+		black.r = black.g = black.b = 0;
 	}
+
+	void drawPixel(uint8_t* buffer, uint32_t x, uint32_t y, Px& color)
+	{
+		buffer[(y * LedsX + x * PerJugX) * 3 + 0] = color.r;
+		buffer[(y * LedsX + x * PerJugX) * 3 + 1] = color.g;
+		buffer[(y * LedsX + x * PerJugX) * 3 + 2] = color.b;
+		buffer[(y * LedsX + x * PerJugX + 1) * 3 + 0] = color.r;
+		buffer[(y * LedsX + x * PerJugX + 1) * 3 + 1] = color.g;
+		buffer[(y * LedsX + x * PerJugX + 1) * 3 + 2] = color.b;
+	}
+
+	void darken(uint8_t* buffer, uint32_t x, uint32_t y)
+	{
+		Px color;
+		color.r = buffer[(y * LedsX + x * PerJugX) * 3 + 0];
+		color.g = buffer[(y * LedsX + x * PerJugX) * 3 + 1];
+		color.b = buffer[(y * LedsX + x * PerJugX) * 3 + 2];
+		color.r = (color.r > DARKEN_BY) ? color.r - DARKEN_BY : 0;
+		color.g = (color.g > DARKEN_BY) ? color.g - DARKEN_BY : 0;
+		color.b = (color.b > DARKEN_BY) ? color.b - DARKEN_BY : 0;
+		drawPixel(buffer, x, y, color);
+	}
+
 
 	virtual void draw(uint8_t *buffer) {
 		frameCount = (frameCount + 1) % 5;
@@ -204,64 +228,61 @@ public:
 		Px generationColor;
 		read_ramp(all_ramps[3], generation % 256, &generationColor);
 		if (generation == 0) {
-			for (uint32_t y = 0; y < LedsY; y++) {
-				for (uint32_t x = 0; x < LedsX; x++) {
-					buffer[(y * LedsX + x) * 3 + 0] = generationColor.r;
-					buffer[(y * LedsX + x) * 3 + 1] = generationColor.g;
-					buffer[(y * LedsX + x) * 3 + 2] = generationColor.b;
+			for (uint32_t y = 0; y < JugsY; y++) {
+				for (uint32_t x = 0; x < JugsX; x++) {
+					drawPixel(buffer, x, y, cells[x][y] ? generationColor : black);
 				}
 			}
 		}
 
 		// Calculate the next generation
-		for (uint32_t y = 0; y < LedsY; y++) {
-			for (uint32_t x = 0; x < LedsX; x++) {
+		for (uint32_t y = 0; y < JugsY; y++) {
+			for (uint32_t x = 0; x < JugsX; x++) {
 				uint8_t neighbors = 0;
 				if (x > 0 && cells[x-1][y])
 					neighbors++;
-				if (x < LedsX-1 && cells[x+1][y])
+				if (x < JugsX-1 && cells[x+1][y])
 					neighbors++;
 				if (y > 0 && cells[x][y-1])
 					neighbors++;
-				if (y < LedsY-1 && cells[x][y+1])
+				if (y < JugsY-1 && cells[x][y+1])
 					neighbors++;
 				if (x > 0 && y > 0 && cells[x-1][y-1])
 					neighbors++;
-				if (x < LedsX-1 && y > 0 && cells[x+1][y-1])
+				if (x < JugsX-1 && y > 0 && cells[x+1][y-1])
 					neighbors++;
-				if (x > 0 && y < LedsY-1 && cells[x-1][y+1])
+				if (x > 0 && y < JugsY-1 && cells[x-1][y+1])
 					neighbors++;
-				if (x < LedsX-1 && y < LedsY-1 && cells[x+1][y+1])
+				if (x < JugsX-1 && y < JugsY-1 && cells[x+1][y+1])
 					neighbors++;
 
-				if (neighbors < 2) {
+				if (neighbors < 1) {
 					next[x][y] = false;
-					buffer[(y * LedsX + x) * 3 + 0] = 0;
-					buffer[(y * LedsX + x) * 3 + 1] = 0;
-					buffer[(y * LedsX + x) * 3 + 2] = 0;
+					darken(buffer, x, y);
 				} else if (cells[x][y] && (neighbors > 3)) {
 					next[x][y] = false;
-					buffer[(y * LedsX + x) * 3 + 0] = 0;
-					buffer[(y * LedsX + x) * 3 + 1] = 0;
-					buffer[(y * LedsX + x) * 3 + 2] = 0;
+					darken(buffer, x, y);
 				} else if (!cells[x][y] && (neighbors == 3)) {
 					next[x][y] = true;
-					buffer[(y * LedsX + x) * 3 + 0] = generationColor.r;
-					buffer[(y * LedsX + x) * 3 + 1] = generationColor.g;
-					buffer[(y * LedsX + x) * 3 + 2] = generationColor.b;
+					drawPixel(buffer, x, y, generationColor);
+				} else if (!cells[x][y]) {
+					next[x][y] = cells[x][y];
+					darken(buffer, x, y);
 				} else
 					next[x][y] = cells[x][y];
 			}
 		}
 
-		memcpy(cells, next, sizeof(bool) * LedsX * LedsY);
+		memcpy(cells, next, sizeof(bool) * JugsX * JugsY);
 		generation += 2;
 	}
 
 	uint8_t frameCount;
-	bool cells[LedsX][LedsY];
-	bool next[LedsX][LedsY];
+	bool cells[JugsX][JugsY];
+	bool next[JugsX][JugsY];
 	uint32_t generation;
+	Px black;
+	static const uint8_t DARKEN_BY = 50;
 };
 
 //----------------------------------------------------

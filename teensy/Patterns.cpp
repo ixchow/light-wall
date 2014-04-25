@@ -67,7 +67,19 @@ public:
 				grid[y * LedsX + x] = dis / 8;
 			}
 		}
+		speed = rand();
+		if (speed & 0x10) {
+			speed = -2;
+		} else {
+			speed = 2;
+		}
+		speed -= 1;
 	}
+	virtual void draw(uint8_t *buffer) {
+		RampPattern::draw(buffer);
+		t += speed;
+	}
+	int8_t speed;
 	uint8_t grid[LedsX * LedsY];
 };
 
@@ -104,42 +116,34 @@ public:
 		if (y >= int8_t(JugsY)) y -= JugsY;
 		for (uint8_t oy = 0; oy < PerJugY; ++oy) {
 			for (uint8_t ox = 0; ox < PerJugX; ++ox) {
-				grid[(y * PerJugY + oy) * LedsX + x * PerJugX + ox] += 16;
-				grid[(y * PerJugY + oy) * LedsX + (JugsX - 1 - x) * PerJugX + ox] += 16;
-				grid[(py * PerJugY + oy) * LedsX + px * PerJugX + ox] -= 7;
-				grid[(py * PerJugY + oy) * LedsX + (JugsX - 1 - px) * PerJugX + ox] -= 7;
+				grid[(y * PerJugY + oy) * LedsX + x * PerJugX + ox] += 8;
+				grid[(y * PerJugY + oy) * LedsX + (JugsX - 1 - x) * PerJugX + ox] += 8;
+				grid[(py * PerJugY + oy) * LedsX + px * PerJugX + ox] += 7;
+				grid[(py * PerJugY + oy) * LedsX + (JugsX - 1 - px) * PerJugX + ox] += 7;
 			}
 		}
 		--s;
 	}
 	virtual void draw(uint8_t *buffer) {
 		step();
-		t = 0;
 		RampPattern::draw(buffer);
 	}
 	uint8_t grid[LedsX * LedsY];
 	int8_t x, y, dx, dy, s;
 };
 
-
-class P_Drip : public Pattern {
+class Drip {
 public:
-	P_Drip() {
-		first = true;
+	Drip() {
+		y = -1;
 		s = 0;
-		lim = 0;
-		ramp = all_ramps[rand() % RampCount];
+		lim = rand() % TicksPerSecond;
 	}
-	
-	virtual void draw(uint8_t *buffer) {
-		if (first) {
-			memset(buffer, 0, LedsX * LedsY * 3);
-			first = false;
-		}
+	void step(RampPtr ramp, uint8_t *buffer) {
 		if (s >= lim) {
-			x = rand() % (LedsX - PerJugX + 1);
-			y = rand() % (JugsY - 2) + 2;
-			s = -int8_t(TicksPerSecond)/2;
+			x = rand() % JugsX;
+			y = rand() % (JugsY - 1) + 1;
+			s = -int8_t(TicksPerSecond)/4;
 			lim = (TicksPerSecond + (rand() % TicksPerSecond)) / 2;
 			uint8_t v = rand();
 			read_ramp(ramp, v, &c);
@@ -160,13 +164,14 @@ public:
 			}
 			for (uint8_t oy = 0; oy < PerJugY; ++oy) {
 				for (uint8_t ox = 0; ox < PerJugX; ++ox) {
-					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 0] = r;
-					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 1] = g;
-					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 2] = b;
+					buffer[((y * PerJugY + oy) * LedsX + x * PerJugX + ox) * 3 + 0] = r;
+					buffer[((y * PerJugY + oy) * LedsX + x * PerJugX + ox) * 3 + 1] = g;
+					buffer[((y * PerJugY + oy) * LedsX + x * PerJugX + ox) * 3 + 2] = b;
 
+/*
 					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 0] = r;
 					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 1] = g;
-					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 2] = b;
+					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 2] = b;*/
 				}
 			}
 			if (s >= 0) {
@@ -175,10 +180,30 @@ public:
 		}
 		++s;
 	}
-	RampPtr ramp;
 	int8_t x, y, s, lim;
 	Px c;
+};
+
+class P_Drip : public Pattern {
+public:
+	Drip drips[7];
+	RampPtr ramp;
 	bool first;
+
+	P_Drip() {
+		first = true;
+		ramp = all_ramps[rand() % RampCount];
+	}
+	
+	virtual void draw(uint8_t *buffer) {
+		if (first) {
+			memset(buffer, 0, LedsX * LedsY * 3);
+			first = false;
+		}
+		for (uint32_t i = 0; i < 7; ++i) {
+			drips[i].step(ramp, buffer);
+		}
+	}
 };
 
 class P_Life : public Pattern {

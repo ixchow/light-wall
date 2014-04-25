@@ -1,6 +1,5 @@
 #include <string.h>
 #include "Patterns.h"
-#include <memory.h>
 
 Pattern::~Pattern() { }
 

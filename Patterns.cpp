@@ -1,3 +1,4 @@
+#include <string.h>
 #include "Patterns.h"
 #include <memory.h>
 
@@ -114,6 +115,74 @@ public:
 	int8_t x, y, dx, dy, s;
 };
 
+
+class P_Life : public Pattern {
+public:
+	P_Life()
+	{
+		for (uint32_t x = 0; x < LedsX; x++) {
+			for (uint32_t y = 0; y < LedsY; y++) {
+				cells[x][y] = (rand() % 2 == 0);
+			}
+		}
+		frameCount = 0;
+	}
+
+	virtual void draw(uint8_t *buffer) {
+		frameCount = (frameCount + 1) % 5;
+		if (frameCount != 4)
+			return;
+		for (uint32_t y = 0; y < LedsY; y++) {
+			for (uint32_t x = 0; x < LedsX; x++) {
+				uint8_t val = (cells[x][y] == true) ? 255 : 0;
+				*(buffer++) = val;
+				*(buffer++) = val;
+				*(buffer++) = val;	
+			}
+		}
+
+		// Calculate the next generation
+		for (uint32_t y = 0; y < LedsY; y++) {
+			for (uint32_t x = 0; x < LedsX; x++) {
+				uint8_t neighbors = 0;
+				if (x > 0 && cells[x-1][y])
+					neighbors++;
+				if (x < LedsX-1 && cells[x+1][y])
+					neighbors++;
+				if (y > 0 && cells[x][y-1])
+					neighbors++;
+				if (y < LedsY-1 && cells[x][y+1])
+					neighbors++;
+				if (x > 0 && y > 0 && cells[x-1][y-1])
+					neighbors++;
+				if (x < LedsX-1 && y > 0 && cells[x+1][y-1])
+					neighbors++;
+				if (x > 0 && y < LedsY-1 && cells[x-1][y+1])
+					neighbors++;
+				if (x < LedsX-1 && y < LedsY-1 && cells[x+1][y+1])
+					neighbors++;
+
+				if (neighbors < 2)
+					next[x][y] = false;
+				else if (cells[x][y] && (neighbors == 2 || neighbors == 3))
+					next[x][y] = true;
+				else if (cells[x][y] && (neighbors > 3))
+					next[x][y] = false;
+				else if (!cells[x][y] && (neighbors == 3))
+					next[x][y] = true;
+				else
+					next[x][y] = cells[x][y];
+			}
+		}
+
+		memcpy(cells, next, sizeof(bool) * LedsX * LedsY);
+	}
+
+	uint8_t frameCount;
+	bool cells[LedsX][LedsY];
+	bool next[LedsX][LedsY];
+};
+
 //----------------------------------------------------
 
 template< typename P >
@@ -124,4 +193,5 @@ CreatePattern all_patterns[PatternCount] = {
 	&create< P_Xor >,
 	&create< P_Rand >,
 	&create< P_RandomWalk >,
+	&create< P_Life >
 };

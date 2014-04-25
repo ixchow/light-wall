@@ -29,8 +29,6 @@ void PatternMixer::draw(uint8_t *led_buffer) {
 	}
 }
 
-#include <iostream>
-
 void PatternMixer::next() {
 	if (pattern) {
 		delete pattern;
@@ -39,17 +37,18 @@ void PatternMixer::next() {
 	if (next_in_order >= PatternCount) {
 		next_in_order = 0;
 		for (uint8_t i = 0; i < PatternCount; ++i) {
-			std::swap(pattern_order[i], pattern_order[i + (rand() % (PatternCount - i))]);
-			std::cout << int(pattern_order[i]) << " ";
+			uint8_t &sel = pattern_order[i + (rand() % (PatternCount - i))];
+			uint8_t temp = sel;
+			sel = pattern_order[i];
+			pattern_order[i] = temp;
 		}
-		std::cout << std::endl;
 	}
 	pattern = all_patterns[pattern_order[next_in_order]]();
 	uint32_t rv = rand();
-	if (rv & 0x1) {
-		ticks_to_remix = TicksPerSecond / 2 + (rv % TicksPerSecond);
-	} else {
-		ticks_to_remix = TicksPerSecond * 5 + (rv % (TicksPerSecond * 5));
-	}
+	//if (rv & 0x1) {
+	//	ticks_to_remix = TicksPerSecond / 2 + (rv % TicksPerSecond);
+	//} else {
+		ticks_to_remix = TicksPerSecond * 30 + (rv % (TicksPerSecond * 5));
+	//}
 	++next_in_order;
 }

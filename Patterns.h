@@ -22,5 +22,5 @@ public:
 
 typedef Pattern *(*CreatePattern)();
 
-const uint32_t PatternCount = 3;
+const uint32_t PatternCount = 4;
 extern CreatePattern all_patterns[PatternCount];

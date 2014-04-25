@@ -1,4 +1,5 @@
 #include "Patterns.h"
+#include <memory.h>
 
 Pattern::~Pattern() { }
 
@@ -64,6 +65,55 @@ public:
 	uint8_t grid[LedsX * LedsY];
 };
 
+class P_RandomWalk : public RampPattern {
+public:
+	P_RandomWalk() : RampPattern(&grid[0]) {
+		memset(grid, 0, LedsX * LedsY);
+		s = 0;
+		x = rand() % JugsX;
+		y = rand() % JugsY;
+	}
+	
+	void step() {
+		if (s == 0) {
+			uint8_t dir = rand() % 8;
+			if      (dir == 0) { dx = 1; dy = 0; }
+			else if (dir == 1) { dx = 1; dy = 1; }
+			else if (dir == 2) { dx = 0; dy = 1; }
+			else if (dir == 3) { dx =-1; dy = 1; }
+			else if (dir == 4) { dx =-1; dy = 0; }
+			else if (dir == 5) { dx =-1; dy =-1; }
+			else if (dir == 6) { dx = 0; dy =-1; }
+			else /* dir == 7 */{ dx = 1; dy =-1; }
+			s = rand() % 2 + 1;
+		}
+		uint8_t px = x;
+		uint8_t py = y;
+		x += dx;
+		y += dy;
+		if (x < 0) x += JugsX;
+		if (x >= int8_t(JugsX)) x -= JugsX;
+		if (y < 0) y += JugsY;
+		if (y >= int8_t(JugsY)) y -= JugsY;
+		for (uint8_t oy = 0; oy < PerJugY; ++oy) {
+			for (uint8_t ox = 0; ox < PerJugX; ++ox) {
+				grid[(y * PerJugY + oy) * LedsX + x * PerJugX + ox] += 16;
+				grid[(y * PerJugY + oy) * LedsX + (JugsX - 1 - x) * PerJugX + ox] += 16;
+				grid[(py * PerJugY + oy) * LedsX + px * PerJugX + ox] -= 7;
+				grid[(py * PerJugY + oy) * LedsX + (JugsX - 1 - px) * PerJugX + ox] -= 7;
+			}
+		}
+		--s;
+	}
+	virtual void draw(uint8_t *buffer) {
+		step();
+		t = 0;
+		RampPattern::draw(buffer);
+	}
+	uint8_t grid[LedsX * LedsY];
+	int8_t x, y, dx, dy, s;
+};
+
 //----------------------------------------------------
 
 template< typename P >
@@ -73,4 +123,5 @@ CreatePattern all_patterns[PatternCount] = {
 	&create< P_Circle >,
 	&create< P_Xor >,
 	&create< P_Rand >,
+	&create< P_RandomWalk >,
 };

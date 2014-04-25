@@ -15,8 +15,10 @@ ifeq ($(UNAME),Darwin)
 		#-Wl,-framework,AudioToolbox
 
 else
-	CPPFLAGS= -I../game-libs64/out/include/SDL2 -D_REENTRANT
-	LDFLAGS= -L../game-libs64/out/lib -lSDL2 -ldl -lpthread -lGL
+#	CPPFLAGS= -I../game-libs64/out/include/SDL2 -D_REENTRANT
+#	LDFLAGS= -L../game-libs64/out/lib -lSDL2 -ldl -lpthread -lGL
+	CPPFLAGS= -g
+	SDL_LIBS =  -lSDL -lSDLmain -lSDL
 endif
 
 all : sim
@@ -27,6 +29,8 @@ all : sim
 sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
 	g++ -Wall -Werror -o $@ $^ $(LDFLAGS)
 
+sim1 : sim-sdl1.o Patterns.o Ramps.o PatternMixer.o
+	g++ -Wall -Werror -o $@ $^ $(SDL_LIBS)
 
 clean :
-	rm *.o sim
+	rm *.o sim sim1

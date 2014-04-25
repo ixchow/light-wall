@@ -121,6 +121,67 @@ public:
 	int8_t x, y, dx, dy, s;
 };
 
+
+class P_Drip : public Pattern {
+public:
+	P_Drip() {
+		first = true;
+		s = 0;
+		lim = 0;
+		ramp = all_ramps[rand() % RampCount];
+	}
+	
+	virtual void draw(uint8_t *buffer) {
+		if (first) {
+			memset(buffer, 0, LedsX * LedsY * 3);
+			first = false;
+		}
+		if (s >= lim) {
+			x = rand() % (LedsX - PerJugX + 1);
+			y = rand() % (JugsY - 2) + 2;
+			s = -int8_t(TicksPerSecond)/2;
+			lim = (TicksPerSecond + (rand() % TicksPerSecond)) / 2;
+			uint8_t v = rand();
+			read_ramp(ramp, v, &c);
+		}
+		if (y >= 0) {
+			uint8_t r, g, b;
+			if (s < 0) {
+				r = g = b = 255;
+			} else {
+				r = c.r; g = c.g; b = c.b;
+				const uint8_t sub = 14;
+				if (c.r > sub) c.r -= sub;
+				else c.r = 0;
+				if (c.g > sub) c.g -= sub;
+				else c.g = 0;
+				if (c.b > sub) c.b -= sub;
+				else c.b = 0;
+			}
+			for (uint8_t oy = 0; oy < PerJugY; ++oy) {
+				for (uint8_t ox = 0; ox < PerJugX; ++ox) {
+					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 0] = r;
+					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 1] = g;
+					buffer[((y * PerJugY + oy) * LedsX + x + ox) * 3 + 2] = b;
+
+					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 0] = r;
+					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 1] = g;
+					buffer[(((JugsY - 1 - y) * PerJugY + oy) * LedsX + (LedsX - 1 - (x + ox))) * 3 + 2] = b;
+				}
+			}
+			if (s >= 0) {
+				--y;
+			}
+		}
+		++s;
+	}
+	RampPtr ramp;
+	int8_t x, y, s, lim;
+	Px c;
+	bool first;
+};
+
+
 //----------------------------------------------------
 
 template< typename P >
@@ -131,4 +192,5 @@ CreatePattern all_patterns[PatternCount] = {
 	&create< P_Xor >,
 	&create< P_Shimmer >,
 	&create< P_RandomWalk >,
+	&create< P_Drip >,
 };

@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
 	SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	SDL_Window *window = SDL_CreateWindow("wall", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, JugsX * 16, JugsY * 16, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	
@@ -86,7 +85,7 @@ int main(int argc, char **argv) {
 
 	glViewport(0,0,window_width, window_height);
 	
-	if (SDL_GL_SetSwapInterval(1) != 0) {
+	if (SDL_GL_SetSwapInterval(0) != 0) {
 		std::cout << "Error setting up VSYNC " << SDL_GetError() << "; will continue, but there may be tearing (or excessive resource usage)" << std::endl;
 	}
 	
@@ -169,7 +168,16 @@ int main(int argc, char **argv) {
 		glTexCoord2f(1.0f, 1.0f); glVertex2f( JugsX/2 + 0.5f, 0.5f * JugsY);
 		glEnd();
 
-
+		{
+			static Uint32 then = SDL_GetTicks();
+			Uint32 now = SDL_GetTicks();
+			const uint32_t MSPerTick = 1000 / TicksPerSecond;
+			Uint32 elapsed = now - then;
+			then = now;
+			if (elapsed < MSPerTick) {
+				SDL_Delay(MSPerTick - elapsed);
+			}
+		}
 		SDL_GL_SwapWindow(window);
 		
 		gl_errors("main loop");

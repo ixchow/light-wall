@@ -1,6 +1,7 @@
 .PHONY : all clean
 
 UNAME := $(shell uname -s)
+HOST := $(shell hostname)
 
 ifeq ($(UNAME),Darwin)
 	CPPFLAGS= -I../game-libs/out/include/SDL2 -D_REENTRANT
@@ -15,22 +16,23 @@ ifeq ($(UNAME),Darwin)
 		#-Wl,-framework,AudioToolbox
 
 else
-#	CPPFLAGS= -I../game-libs64/out/include/SDL2 -D_REENTRANT
-#	LDFLAGS= -L../game-libs64/out/lib -lSDL2 -ldl -lpthread -lGL
-	CPPFLAGS= -g
+ifeq ($(HOST),incepchow)
+	CPPFLAGS= -I../game-libs64/out/include/SDL2 -D_REENTRANT
+	LDFLAGS= -L../game-libs64/out/lib -lSDL2 -ldl -lpthread -lGL
+endif
 	SDL_LIBS =  -lSDL -lSDLmain -lSDL
 endif
 
 all : sim
 
 %.o : %.cpp Patterns.h Ramps.h PngRamps.h
-	g++ -c -Wall -Werror -o $@ $< $(CPPFLAGS)
+	g++ -g -c -Wall -Werror -o $@ $< $(CPPFLAGS)
 
 sim : sim-main.o Patterns.o Ramps.o PatternMixer.o
-	g++ -Wall -Werror -o $@ $^ $(LDFLAGS)
+	g++ -g -Wall -Werror -o $@ $^ $(LDFLAGS)
 
 sim1 : sim-sdl1.o Patterns.o Ramps.o PatternMixer.o
-	g++ -Wall -Werror -o $@ $^ $(SDL_LIBS)
+	g++ -g -Wall -Werror -o $@ $^ $(SDL_LIBS)
 
 clean :
 	rm *.o sim sim1

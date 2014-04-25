@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
 	for (std::vector< std::string >::iterator n = names.begin(); n != names.end(); ++n) {
 		std::cout << "\t" << *n << ", \\\n";
 	}
+	std::cout << "\n";
 	std::cout.flush();
 	return 0;
 }

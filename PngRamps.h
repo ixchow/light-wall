@@ -114,3 +114,4 @@ uint8_t stabby_ramp[256*3] = {
 	rainbow_ramp, \
 	spectral_ramp, \
 	stabby_ramp, \
+

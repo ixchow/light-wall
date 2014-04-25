@@ -23,7 +23,7 @@ endif
 
 all : sim
 
-%.o : %.cpp Patterns.h Ramps.h
+%.o : %.cpp Patterns.h Ramps.h PngRamps.h
 	g++ -c -Wall -Werror -o $@ $< $(CPPFLAGS)
 
 sim : sim-main.o Patterns.o Ramps.o PatternMixer.o

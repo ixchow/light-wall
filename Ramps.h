@@ -18,5 +18,5 @@ inline void read_ramp(RampPtr _data, uint8_t v, Px *px) {
 }
 
 
-const uint32_t RampCount = 2;
+const uint32_t RampCount = 6;
 extern RampPtr all_ramps[RampCount];
